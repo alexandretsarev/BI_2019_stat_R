@@ -2,7 +2,9 @@
 title: "Домашняя работа №4, R and Statistics"
 author: "Царев Александр"
 date: "Октябрь 19, 2019"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ## Задание
@@ -28,10 +30,8 @@ _Коэффициент корреляции Спирмена_: $$\rho = 1- {\fr
 corr_fun <- function(your_data, method){
   
   if (method == "pearson"){
-    mean1 <- mean(your_data[,1]) #  лучше подсчитать это 1 раз, чтобы экономить время
-    mean2 <- mean(your_data[,2]) #  лучше подсчитать это 1 раз, чтобы экономить время
-    your_data$delta1 <- your_data[,1]-mean1 # вектор вариаций между значением и средним по значению X1 
-    your_data$delta2 <- your_data[,2]-mean2 # вектор вариаций между значением и средним по значению X2
+    your_data$delta1 <- your_data[,1]-mean(your_data[,1]) # вектор вариаций между значением и средним по значению X1 
+    your_data$delta2 <- your_data[,2]-mean(your_data[,2]) # вектор вариаций между значением и средним по значению X2
     your_data$muldel <- your_data$delta1*your_data$delta2 # вектор переменоженных вариаций двух переменных (X1*X2)
     numerator <- sum(your_data$muldel) # по сути это готовый числитель, лучше подсчитать 1 раз -> экономия времени
     
@@ -40,21 +40,19 @@ corr_fun <- function(your_data, method){
     
     denominator <- sqrt(sum(your_data$delta1_sq)*sum(your_data$delta1_sq))# по сути это готовый знаменатель
     
-    result <- numerator/denominator
-    return(result)
+    return(numerator/denominator)
     
   } else if (method == "spearman") {
     
-    n <- length(df[,1])
-    df <- df[order(df[,1]),]
-    df$X1_rang <- seq(1,n,1)
-    df <- df[order(df[,2]),]
-    df$X2_rang <- seq(1,n,1)
+    n <- length(df[,1]) # количество наблюдений
+    df <- df[order(df[,1]),] # сортируем по первой колонке от меньшего к большему
+    df$X1_rang <- seq(1,n,1) # добавляем ранги 1 -> n
+    df <- df[order(df[,2]),] # сортируем по второй колонке от меньшего к большему
+    df$X2_rang <- seq(1,n,1) # добавляем ранги 1 -> n
     
-    df$d_sq <- (df$X1_rang-df$X2_rang)^2
+    df$d_sq <- (df$X1_rang-df$X2_rang)^2 # получаем квадрат разницы между рангами переменных
     
-    result <- 1-6*sum(df$d_sq)/(n*((n^2)-1))
-    return(result)
+    return(1-6*sum(df$d_sq)/(n*((n^2)-1)))
   }
 }
 
@@ -63,7 +61,6 @@ corr_fun <- function(your_data, method){
 # Проверка правильности функции
 Генерируем рандомный датасет
 
-P.S. он не совсем рандомный все-таки получился, я задал крайние значения. Не уверен насколько это важно, но лучше укажу
 ```{r, echo=TRUE}
 df <- data.frame(replicate(2,sample(-1000:1000,50)))
 ```
